@@ -5,15 +5,10 @@
 
 //Sensors
 #define DHTTYPE DHT11 
-
-// Relays
-//#define RelayPin1 D1  //Module Realy 
-//#define RelayPin2 D2  //Module Realy
-//#define RelayPin3 D3  //Module Realy
-//#define RelayPin4 D4  //Module Realy 
-
-#define DHTPin1  D1    //Sensor Input
-#define DHTPin2  D4    //Sensor Input
+#define DHTPin1  D5    //Sensor Input
+#define DHTPin2  D6    //Sensor Input
+#define DHTPin3  D7    //Sensor Input
+#define DHTPin4  D8    //Sensor Input
 
 
 //WiFi Status LED
@@ -31,6 +26,8 @@ const char* clientID = "ESP-32 sensor"; // client id
 //deklarasi pin dht sensor
 DHT dht(DHTPin1, DHTTYPE);
 DHT dht2(DHTPin2, DHTTYPE);
+DHT dht3(DHTPin3, DHTTYPE);
+DHT dht4(DHTPin4, DHTTYPE);
 
 
 #define sub_Fan1 "Fan1"
@@ -46,28 +43,6 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 unsigned long lastMsg = 0;
-
-////////////set msg sensor 1///////
-//set msg1
-#define MSG_BUFFER_SIZE  (80)
-char msg[MSG_BUFFER_SIZE];
-
-
-//set msg2
-#define MSG_BUFFER_SIZE2  (80)
-char msg2[MSG_BUFFER_SIZE];
-///////////////////////////////////
-
-////////////set msg sensor 2///////
-//set msg1
-#define MSG_BUFFER_SIZE3  (80)
-char msg3[MSG_BUFFER_SIZE];
-
-
-//set msg2
-#define MSG_BUFFER_SIZE4  (80)
-char msg4[MSG_BUFFER_SIZE];
-///////////////////////////////////
 
 //inisiasi awal nilai variable temp1
 ///sensor1
@@ -134,61 +109,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
 //      digitalWrite(RelayPin1, HIGH);  // Turn the LED off by making the voltage HIGH
 //    }    
 //  }
-//
-//  else if ( strstr(topic, sub_Fan2))
-//  {
-//    for (int i = 0; i < length; i++) {
-//      Serial.print((char)payload[i]);
-//    }
-//    Serial.println();
-//    // Switch on the LED if an 1 was received as first character
-//    if ((char)payload[0] == '0') {
-//      digitalWrite(RelayPin2, LOW);   // Turn the LED on (Note that LOW is the voltage level
-//    } else {
-//      digitalWrite(RelayPin2, HIGH);  // Turn the LED off by making the voltage HIGH
-//    }
-//  }
-//  else if ( strstr(topic, sub_Fan3))
-//  {
-//    for (int i = 0; i < length; i++) {
-//      Serial.print((char)payload[i]);
-//    }
-//    Serial.println();
-//    // Switch on the LED if an 1 was received as first character
-//    if ((char)payload[0] == '0') {
-//      digitalWrite(RelayPin3, LOW);   // Turn the LED on (Note that LOW is the voltage level
-//    } else {
-//      digitalWrite(RelayPin3, HIGH);  // Turn the LED off by making the voltage HIGH
-//    }
-//  }
-//  else if (strstr(topic, sub_Fan4))
-//  {
-//    for (int i = 0; i < length; i++) {
-//      Serial.print((char)payload[i]);
-//    }
-//    Serial.println();
-//    // Switch on the LED if an 1 was received as first character
-//    if ((char)payload[0] == '0') {
-//      digitalWrite(DHTPin2, LOW);   // Turn the LED on (Note that LOW is the voltage level
-//    } else {
-//      digitalWrite(DHTPin2, HIGH);  // Turn the LED off by making the voltage HIGH
-//    }    
-//  }
-//  
-//  else if ( strstr(topic, sub_servo))
-//  {
-//    for (int i = 0; i < length; i++) {
-//      Serial.print((char)payload[i]);
-//    }
-//    Serial.println();
-////    // Switch on the LED if an 1 was received as first character
-////    if ((char)payload[0] == '0') {
-////      digitalWrite(RelayPin4, LOW);   // Turn the LED on (Note that LOW is the voltage level
-////    } else {
-////      digitalWrite(RelayPin4, HIGH);  // Turn the LED off by making the voltage HIGH
-////    }
-//  }
-//  
 //  else
 //  {
 //    Serial.println("unsubscribed topic");
@@ -199,22 +119,15 @@ void setup() {
   Serial.begin(115200);
   dht.begin();
   dht2.begin();
+  dht3.begin();
+  dht4.begin();
   pinMode(DHTPin1, INPUT);  
   pinMode(DHTPin2, INPUT);
-//  pinMode(RelayPin1, OUTPUT);
-//  pinMode(RelayPin2, OUTPUT);
-//  pinMode(RelayPin3, OUTPUT);
-
-
-
+  pinMode(DHTPin3, INPUT);  
+  pinMode(DHTPin4, INPUT);
   pinMode(wifiLed, OUTPUT);
 
-  //During Starting all Relays should TURN OFF
-//  digitalWrite(RelayPin1, HIGH);
-//  digitalWrite(RelayPin2, HIGH);
-//  digitalWrite(RelayPin3, HIGH);
-//  digitalWrite(RelayPin4, HIGH);
-  
+
   //During Starting WiFi LED should TURN OFF
   digitalWrite(wifiLed, HIGH);
 
@@ -223,20 +136,24 @@ void setup() {
   client.setCallback(callback);
 }
 
-
 void pubsen1(){
 ////////////READ DATA SENSOR 1
 int h1 = dht.readHumidity();
-delay(500);
-// Read temperature as Celsius (the default)
 int t1 = dht.readTemperature();
 ////////////READ DATA SENSOR 2
-delay(500);
+delay(100);
 int h2 = dht2.readHumidity();
-// Read temperature as Celsius (the default)
-delay(500);
 int t2 = dht2.readTemperature();
-delay(500);
+////////////READ DATA SENSOR 2
+delay(100);
+int h3 = dht3.readHumidity();
+int t3 = dht3.readTemperature();
+////////////READ DATA SENSOR 2
+delay(100);
+int h4 = dht4.readHumidity();
+int t4 = dht4.readTemperature();
+
+
 //send Data sensor
 unsigned long now = millis();
   if (now - lastMsg > 2000) {
@@ -244,17 +161,14 @@ unsigned long now = millis();
     //value berisi data yang di inisiasi
     DynamicJsonDocument doc(1024);
     temp1 = t1;
-    delay(500);
-    humadity1 = h1;
-    delay(500);
+    humadity1 = h1*1.81;
+    delay(100);
     temp2 = t2;
-    delay(500);
     humadity2 = h2;
     
     //Json fill data here
     doc["temp1"] = temp1;
     doc["humadity1"] = humadity1;
-    delay(500);
     doc["temp2"] = temp2;
     doc["humadity2"] = humadity2;
     serializeJson(doc, Serial);
@@ -267,56 +181,25 @@ unsigned long now = millis();
 
     //Json Send data
     client.publish("sensor", buffer);
-    
-    //Print serial data
-    //snprintf (msg, MSG_BUFFER_SIZE, "{""temperature"" :%d ""humidity"" :%d}", temp1,humadity1);
-    //snprintf (msg2, MSG_BUFFER_SIZE2, "%ld", humadity1);
-    //Serial.print("Publish message1: ");
-    //Serial.print(msg);
-    //Serial.println(msg2);
-    //output topic dan isi topic
-    //client.publish("temp:", msg);
-    //client.publish("humadity", msg2);
+    delay(5000);
   }
 Serial.println("");
 Serial.print("Humidity1: ");
-Serial.println(h1);
+Serial.println(h1*1.81);  //
 Serial.print("Temperature1: ");
 Serial.println(t1);
 Serial.print("Humidity2: ");
-Serial.println(h2);
+Serial.println(h2);  //
 Serial.print("Temperature2: ");
 Serial.println(t2);
-//delay(2000);
-  }
-
-void pubsen2(){
-float h = dht2.readHumidity();
-// Read temperature as Celsius (the default)
-float t = dht2.readTemperature();
-
-//send Data sensor
-unsigned long now = millis();
-  if (now - lastMsg > 2000) {
-    lastMsg = now;
-    //value berisi data yang di inisiasi
-    temp2 = t;
-    humadity2 = h;
-    snprintf (msg3, MSG_BUFFER_SIZE, "%ld", temp2);
-    snprintf (msg4, MSG_BUFFER_SIZE2, "%ld", humadity2);
-    Serial.print("Publish message2: ");
-    Serial.print(msg3);
-    Serial.println(msg4);
-    //output topic dan isi topic
-    client.publish("temp2", msg3);
-    client.publish("humadity2", msg4);
-    delay(5000);
-  }
-Serial.print("Humidity2: ");
-Serial.println(h);
-Serial.print("Temperature2: ");
-Serial.println(t);
-delay(1000);
+Serial.print("Humidity3: ");
+Serial.println(h3*0.90);  //
+Serial.print("Temperature3: ");
+Serial.println(t3);
+Serial.print("Humidity4: ");
+Serial.println(h4*2.10);  //
+Serial.print("Temperature4: ");
+Serial.println(t4);
   }
 
 
@@ -326,6 +209,6 @@ void loop() {
     reconnect();
   }
   client.loop();
+  
 pubsen1();
-//pubsen2();
 }

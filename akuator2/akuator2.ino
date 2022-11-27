@@ -1,4 +1,4 @@
-                    /////// AKUATOR CODE FOR WOKSHOP ////////
+                    /////// AKUATOR2 CODE FOR WOKSHOP ////////
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 //#include "DHT.h"
@@ -7,13 +7,15 @@
 //#define DHTTYPE DHT11 
 
 // Relays
-#define RelayPinFan1 D8  //Module Realy 
-#define RelayPinFan2 D7  //Module Realy
-#define RelayPinFan3 D6  //Module Realy
-#define RelayPinFan4 D5  //Module Realy 
+#define RelayPinPompaN1 D1  //Module Realy 
+#define RelayPinPompaN2 D2  //Module Realy 
+#define RelayPinCoolPad1 D8  //Module Realy 
+#define RelayPinCoolPad2 D7  //Module Realy
+#define RelayPinPompaMisting D6  //Module Realy
+#define RelayPinFreshWater D5  //Module Realy 
 
-#define DHTPin1  D5    //Sensor Input
-#define DHTPin12 D6    //Sensor Input
+//#define DHTPin1  D5    //Sensor Input
+//#define DHTPin12 D6    //Sensor Input
 
 
 //WiFi Status LED
@@ -31,12 +33,8 @@ const char* clientID = "ESP-32 akuator"; // client id
 
 //DHT dht(DHTPin1, DHTTYPE);
 
-#define sub_Fan1 "Fan1"
-#define sub_Fan2 "Fan2"
-#define sub_Fan3 "Fan3"
-#define sub_Fan4 "Fan4"
 #define sub_CoolPad1 "CoolPad1"
-#define sub_CoolPad2 "servo1"
+#define sub_CoolPad2 "CoolPad2"
 #define sub_PompaMisting "PompaMisting"
 #define sub_FreshWater "FreshWater"
 #define sub_PompaN1 "PompaN1"
@@ -48,17 +46,16 @@ const char* clientID = "ESP-32 akuator"; // client id
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-//For Publish
-//unsigned long lastMsg = 0;
-////set msg1
-//#define MSG_BUFFER_SIZE  (80)
-//char msg[MSG_BUFFER_SIZE];
-////set msg2
-//#define MSG_BUFFER_SIZE2  (80)
-//char msg2[MSG_BUFFER_SIZE];
-////inisiasi awal nilai variable value
-//int value = 0;
-//int value2 = 0;
+unsigned long lastMsg = 0;
+//set msg1
+#define MSG_BUFFER_SIZE  (80)
+char msg[MSG_BUFFER_SIZE];
+//set msg2
+#define MSG_BUFFER_SIZE2  (80)
+char msg2[MSG_BUFFER_SIZE];
+//inisiasi awal nilai variable value
+int value = 0;
+int value2 = 0;
 
 void setup_wifi() {
  delay(10);
@@ -78,13 +75,12 @@ void reconnect() {
  if (client.connect(clientID, mqttUserName, mqttPwd)) {
       Serial.println("MQTT connected");
       // ... and resubscribe
-      client.subscribe(sub_Fan1);
-      client.subscribe(sub_Fan2);
-      client.subscribe(sub_Fan3);
-      client.subscribe(sub_Fan4);
       client.subscribe(sub_CoolPad1);
       client.subscribe(sub_CoolPad2);
-//      client.subscribe(pub_dht11);
+      client.subscribe(sub_PompaMisting);
+      client.subscribe(sub_FreshWater);
+      client.subscribe(sub_PompaN1);
+      client.subscribe(sub_PompaN2);      
     } 
     else {
       Serial.print("failed, rc=");
@@ -104,7 +100,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   //Global Declaration for var catch
   //int OFF = 0; 
   
-  if (strstr(topic, sub_Fan1))
+  if (strstr(topic, sub_CoolPad1))
   {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
@@ -112,13 +108,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println();
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
-      digitalWrite(RelayPinFan1, LOW);   // Turn the LED on (Note that LOW is the voltage level
+      digitalWrite(RelayPinCoolPad1, LOW);   // Turn the LED on (Note that LOW is the voltage level
     } else {
-      digitalWrite(RelayPinFan1, HIGH);  // Turn the LED off by making the voltage HIGH
+      digitalWrite(RelayPinCoolPad1, HIGH);  // Turn the LED off by making the voltage HIGH
     }    
   }
 
-  else if ( strstr(topic, sub_Fan2))
+  else if ( strstr(topic, sub_CoolPad2))
   {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
@@ -126,12 +122,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println();
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
-      digitalWrite(RelayPinFan2, LOW);   // Turn the LED on (Note that LOW is the voltage level
+      digitalWrite(RelayPinCoolPad2, LOW);   // Turn the LED on (Note that LOW is the voltage level
     } else {
-      digitalWrite(RelayPinFan2, HIGH);  // Turn the LED off by making the voltage HIGH
+      digitalWrite(RelayPinCoolPad2, HIGH);  // Turn the LED off by making the voltage HIGH
     }
   }
-  else if ( strstr(topic, sub_Fan3))
+  else if ( strstr(topic, sub_PompaMisting))
   {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
@@ -139,12 +135,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println();
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
-      digitalWrite(RelayPinFan3, LOW);   // Turn the LED on (Note that LOW is the voltage level
+      digitalWrite(RelayPinPompaMisting, LOW);   // Turn the LED on (Note that LOW is the voltage level
     } else {
-      digitalWrite(RelayPinFan3, HIGH);  // Turn the LED off by making the voltage HIGH
+      digitalWrite(RelayPinPompaMisting, HIGH);  // Turn the LED off by making the voltage HIGH
     }
   }
-  else if (strstr(topic, sub_Fan4))
+  else if (strstr(topic, sub_FreshWater))
   {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
@@ -152,25 +148,39 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println();
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
-      digitalWrite(RelayPinFan4, LOW);   // Turn the LED on (Note that LOW is the voltage level
+      digitalWrite(RelayPinFreshWater, LOW);   // Turn the LED on (Note that LOW is the voltage level
     } else {
-      digitalWrite(RelayPinFan4, HIGH);  // Turn the LED off by making the voltage HIGH
+      digitalWrite(RelayPinFreshWater, HIGH);  // Turn the LED off by making the voltage HIGH
     }    
   }
   
-//  else if ( strstr(topic, sub_CoolPad2))
-//  {
-//    for (int i = 0; i < length; i++) {
-//      Serial.print((char)payload[i]);
-//    }
-//    Serial.println();
-//    // Switch on the LED if an 1 was received as first character
-//    if ((char)payload[0] == '1') {
-//      digitalWrite(RelayPinFan4, LOW);   // Turn the LED on (Note that LOW is the voltage level
-//    } else {
-//      digitalWrite(RelayPinFan4, HIGH);  // Turn the LED off by making the voltage HIGH
-//    }
-//  }
+  else if ( strstr(topic, sub_PompaN1))
+  {
+    for (int i = 0; i < length; i++) {
+      Serial.print((char)payload[i]);
+    }
+    Serial.println();
+    // Switch on the LED if an 1 was received as first character
+    if ((char)payload[0] == '1') {
+      digitalWrite(RelayPinPompaN1, LOW);   // Turn the LED on (Note that LOW is the voltage level
+    } else {
+      digitalWrite(RelayPinPompaN1, HIGH);  // Turn the LED off by making the voltage HIGH
+    }
+  }
+
+  else if ( strstr(topic, sub_PompaN2))
+  {
+    for (int i = 0; i < length; i++) {
+      Serial.print((char)payload[i]);
+    }
+    Serial.println();
+    // Switch on the LED if an 1 was received as first character
+    if ((char)payload[0] == '1') {
+      digitalWrite(RelayPinPompaN2, LOW);   // Turn the LED on (Note that LOW is the voltage level
+    } else {
+      digitalWrite(RelayPinPompaN2, HIGH);  // Turn the LED off by making the voltage HIGH
+    }
+  }
   
   else
   {
@@ -182,18 +192,18 @@ void setup() {
   Serial.begin(115200);
 //  dht.begin();
   
-  pinMode(RelayPinFan1, OUTPUT);
-  pinMode(RelayPinFan2, OUTPUT);
-  pinMode(RelayPinFan3, OUTPUT);
-  pinMode(RelayPinFan4, OUTPUT);
+  pinMode(RelayPinCoolPad1, OUTPUT);
+  pinMode(RelayPinCoolPad2, OUTPUT);
+  pinMode(RelayPinPompaMisting, OUTPUT);
+  pinMode(RelayPinFreshWater, OUTPUT);
 
   pinMode(wifiLed, OUTPUT);
-  digitalWrite(RelayPinFan1, LOW);
+  digitalWrite(RelayPinCoolPad1, LOW);
   //During Starting all Relays should TURN OFF
-  digitalWrite(RelayPinFan1, HIGH);
-  digitalWrite(RelayPinFan2, HIGH);
-  digitalWrite(RelayPinFan3, HIGH);
-  digitalWrite(RelayPinFan4, HIGH);
+  digitalWrite(RelayPinCoolPad1, HIGH);
+  digitalWrite(RelayPinCoolPad2, HIGH);
+  digitalWrite(RelayPinPompaMisting, HIGH);
+  digitalWrite(RelayPinFreshWater, HIGH);
   
   //During Starting WiFi LED should TURN OFF
   digitalWrite(wifiLed, HIGH);
