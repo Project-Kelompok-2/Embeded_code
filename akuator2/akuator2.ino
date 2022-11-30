@@ -46,16 +46,16 @@ const char* clientID = "ESP-32 akuator"; // client id
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-unsigned long lastMsg = 0;
-//set msg1
-#define MSG_BUFFER_SIZE  (80)
-char msg[MSG_BUFFER_SIZE];
-//set msg2
-#define MSG_BUFFER_SIZE2  (80)
-char msg2[MSG_BUFFER_SIZE];
-//inisiasi awal nilai variable value
-int value = 0;
-int value2 = 0;
+//unsigned long lastMsg = 0;
+////set msg1
+//#define MSG_BUFFER_SIZE  (80)
+//char msg[MSG_BUFFER_SIZE];
+////set msg2
+//#define MSG_BUFFER_SIZE2  (80)
+//char msg2[MSG_BUFFER_SIZE];
+////inisiasi awal nilai variable value
+//int value = 0;
+//int value2 = 0;
 
 void setup_wifi() {
  delay(10);
@@ -191,11 +191,17 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void setup() {
   Serial.begin(115200);
 //  dht.begin();
-  
+//Pin Declaration IN/OUT
+
+  pinMode(RelayPinPompaN1,OUTPUT);
+  pinMode(RelayPinPompaN2,OUTPUT);
   pinMode(RelayPinCoolPad1, OUTPUT);
   pinMode(RelayPinCoolPad2, OUTPUT);
   pinMode(RelayPinPompaMisting, OUTPUT);
   pinMode(RelayPinFreshWater, OUTPUT);
+  
+
+// Set Pin ON/OFF
 
   pinMode(wifiLed, OUTPUT);
   digitalWrite(RelayPinCoolPad1, LOW);

@@ -3,6 +3,19 @@
 #include <PubSubClient.h>
 //#include "DHT.h"
 
+//LCD oled library
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+// Declaration for SSD1306 display connected using I2C
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+
 //Sensors
 //#define DHTTYPE DHT11 
 
@@ -12,8 +25,8 @@
 #define RelayPinFan3 D6  //Module Realy
 #define RelayPinFan4 D5  //Module Realy 
 
-#define DHTPin1  D5    //Sensor Input
-#define DHTPin12 D6    //Sensor Input
+//#define DHTPin1  D5    //Sensor Input
+//#define DHTPin12 D6    //Sensor Input
 
 
 //WiFi Status LED
@@ -66,17 +79,48 @@ void setup_wifi() {
  while (WiFi.status() != WL_CONNECTED) {
  delay(500);
  Serial.print(".");
+ 
+ display.clearDisplay();
+ display.setTextSize(1);
+ display.setTextColor(WHITE);
+ display.setCursor(0,0);
+ display.println("Connecting To SSID");
+ display.display();
+
+ for (int i = 0; i < 10; i++)
+  {
+    display.setCursor(i*5,8);
+    display.println(".");
+    Serial.print(".");
+    display.display();
+    delay(100);
+  }
+ 
  }
  Serial.println("");
+ display.clearDisplay();
  Serial.println("WiFi connected");
+ display.display();
+ display.setCursor(0,0);
+ display.println("WiFi connected");
+ display.display();
+ delay(1000);
+
  Serial.println("IP address: ");
  Serial.println(WiFi.localIP());
+ display.println("IP address: ");
+ display.println(WiFi.localIP());
+ display.display();
+ delay(1000);
 }
 
 void reconnect() {
+   display.clearDisplay();
  while (!client.connected()) {
  if (client.connect(clientID, mqttUserName, mqttPwd)) {
       Serial.println("MQTT connected");
+      display.clearDisplay();
+      display.println("Success Connect to MQTT");
       // ... and resubscribe
       client.subscribe(sub_Fan1);
       client.subscribe(sub_Fan2);
@@ -87,7 +131,22 @@ void reconnect() {
 //      client.subscribe(pub_dht11);
     } 
     else {
+      display.clearDisplay();
       Serial.print("failed, rc=");
+      display.setCursor(0,0);
+      display.println("Connecting to");
+      display.setCursor(0,8);
+      display.println("MQTT server");
+      display.display();
+
+       for (int i = 0; i < 10; i++)
+    {
+      display.setCursor(i*5,24);
+      display.println(".");
+      display.display();
+      delay(100);
+    }
+      
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
       // Wait 5 seconds before retrying
@@ -181,14 +240,20 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void setup() {
   Serial.begin(115200);
 //  dht.begin();
-  
+
   pinMode(RelayPinFan1, OUTPUT);
   pinMode(RelayPinFan2, OUTPUT);
   pinMode(RelayPinFan3, OUTPUT);
   pinMode(RelayPinFan4, OUTPUT);
-
+  
   pinMode(wifiLed, OUTPUT);
   digitalWrite(RelayPinFan1, LOW);
+
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+  display.clearDisplay();
+  }
   //During Starting all Relays should TURN OFF
   digitalWrite(RelayPinFan1, HIGH);
   digitalWrite(RelayPinFan2, HIGH);

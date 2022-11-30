@@ -9,19 +9,19 @@
 #define DHTPin2  D6    //Sensor Input
 #define DHTPin3  D7    //Sensor Input
 #define DHTPin4  D8    //Sensor Input
-
+#define waterlevelsensor A0 //Sensor Read
 
 //WiFi Status LED
 #define wifiLed    D0   //D0
 
 // Update these with temp1s suitable for your network.
 
-const char* ssid = "test123"; //WiFI Name
-const char* password = "123123123"; //WiFi Password
+const char* ssid = "test123";             //WiFI Name
+const char* password = "123123123";       //WiFi Password
 const char* mqttServer = "20.20.0.245";
-const char* mqttUserName = ""; // MQTT username
-const char* mqttPwd = ""; // MQTT password
-const char* clientID = "ESP-32 sensor"; // client id
+const char* mqttUserName = "";            // MQTT username
+const char* mqttPwd = "";                 // MQTT password
+const char* clientID = "ESP-32 sensor";   // client id
 
 //deklarasi pin dht sensor
 DHT dht(DHTPin1, DHTTYPE);
@@ -45,12 +45,15 @@ PubSubClient client(espClient);
 unsigned long lastMsg = 0;
 
 //inisiasi awal nilai variable temp1
-///sensor1
+///dht 11 sensor1
 int temp1 = 0;
 int humadity1 = 0;
 ///sensor2
 int temp2 = 0;
 int humadity2 = 0;
+
+//water level sensor
+int sensor_value = 0;
 
 void setup_wifi() {
  delay(10);
@@ -126,6 +129,7 @@ void setup() {
   pinMode(DHTPin3, INPUT);  
   pinMode(DHTPin4, INPUT);
   pinMode(wifiLed, OUTPUT);
+  pinMode(waterlevelsensor, INPUT);
 
 
   //During Starting WiFi LED should TURN OFF
@@ -202,6 +206,27 @@ Serial.print("Temperature4: ");
 Serial.println(t4);
   }
 
+void pubwaterlevel(){
+  sensor_value = analogRead(waterlevelsensor);
+  Serial.print("Sensor Value = ");
+  Serial.println(sensor_value);
+
+  //Convert data
+  DynamicJsonDocument docsend(1024);
+
+  docsend["waterLevel"] = sensor_value;
+  serializeJson(docsend, Serial);
+
+  //Json fetch data
+  String message ="";
+  char buffer[256];
+  message.toCharArray(buffer, 256);
+  serializeJson(docsend, buffer);
+
+  //Json Send data
+  client.publish("water_level", buffer);
+  delay(5000);
+  }
 
 void loop() {
   if (!client.connected()) {
@@ -211,4 +236,6 @@ void loop() {
   client.loop();
   
 pubsen1();
+pubwaterlevel();
+ 
 }
