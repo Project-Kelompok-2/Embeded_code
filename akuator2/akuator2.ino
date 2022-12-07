@@ -3,12 +3,26 @@
 #include <PubSubClient.h>
 //#include "DHT.h"
 
+//LCD oled library
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+// Declaration for SSD1306 display connected using I2C
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+
+
 //Sensors
 //#define DHTTYPE DHT11 
 
 // Relays
-#define RelayPinPompaN1 D1  //Module Realy 
-#define RelayPinPompaN2 D2  //Module Realy 
+#define RelayPinPompaN1 D3  //Module Realy 
+#define RelayPinPompaN2 D4  //Module Realy 
 #define RelayPinCoolPad1 D8  //Module Realy 
 #define RelayPinCoolPad2 D7  //Module Realy
 #define RelayPinPompaMisting D6  //Module Realy
@@ -23,9 +37,9 @@
 
 // Update these with values suitable for your network.
 
-const char* ssid = "test123"; //WiFI Name
-const char* password = "123123123"; //WiFi Password
-const char* mqttServer = "20.20.0.245";
+const char* ssid = "SKK - STUDENT"; //WiFI Name
+const char* password = "sistemkomputerkontrol"; //WiFi Password
+const char* mqttServer = "10.10.0.167";
 const char* mqttUserName = ""; // MQTT username
 const char* mqttPwd = ""; // MQTT password
 const char* clientID = "ESP-32 akuator 2"; // client id
@@ -109,8 +123,21 @@ void callback(char* topic, byte* payload, unsigned int length) {
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
       digitalWrite(RelayPinCoolPad1, LOW);   // Turn the LED on (Note that LOW is the voltage level
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 ON");
+      display.display();
+      
     } else {
       digitalWrite(RelayPinCoolPad1, HIGH);  // Turn the LED off by making the voltage HIGH
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 OFF");
+      display.display();
     }    
   }
 
@@ -121,13 +148,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '0') {
+    if ((char)payload[0] == '1') {
       digitalWrite(RelayPinCoolPad2, LOW);   // Turn the LED on (Note that LOW is the voltage level
 
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 1 OFF");
+      display.println("FAN 1 ON");
       display.display();
     } else {
       digitalWrite(RelayPinCoolPad2, HIGH);  // Turn the LED off by making the voltage HIGH
@@ -135,7 +162,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 1 ON");
+      display.println("FAN 1 OFF");
       display.display();
     }
   }
@@ -148,8 +175,21 @@ void callback(char* topic, byte* payload, unsigned int length) {
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
       digitalWrite(RelayPinPompaMisting, LOW);   // Turn the LED on (Note that LOW is the voltage level
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 ON");
+      display.display();
+      
     } else {
       digitalWrite(RelayPinPompaMisting, HIGH);  // Turn the LED off by making the voltage HIGH
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 OFF");
+      display.display();
     }
   }
   else if (strstr(topic, sub_FreshWater))
@@ -161,8 +201,21 @@ void callback(char* topic, byte* payload, unsigned int length) {
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '1') {
       digitalWrite(RelayPinFreshWater, LOW);   // Turn the LED on (Note that LOW is the voltage level
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 ON");
+      display.display();
+      
     } else {
       digitalWrite(RelayPinFreshWater, HIGH);  // Turn the LED off by making the voltage HIGH
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 OFF");
+      display.display();
     }    
   }
   
@@ -211,12 +264,16 @@ void setup() {
   pinMode(RelayPinCoolPad2, OUTPUT);
   pinMode(RelayPinPompaMisting, OUTPUT);
   pinMode(RelayPinFreshWater, OUTPUT);
-  
+
+    if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+  display.clearDisplay();
+  }
 
 // Set Pin ON/OFF
 
   pinMode(wifiLed, OUTPUT);
-  digitalWrite(RelayPinCoolPad1, LOW);
   //During Starting all Relays should TURN OFF
   digitalWrite(RelayPinCoolPad1, HIGH);
   digitalWrite(RelayPinCoolPad2, HIGH);

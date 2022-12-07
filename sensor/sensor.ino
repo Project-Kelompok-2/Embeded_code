@@ -12,13 +12,13 @@
 #define waterlevelsensor A0 //Sensor Read
 
 //WiFi Status LED
-#define wifiLed    D0   //D0
+#define wifiLed    D4   //D0
 
 // Update these with temp1s suitable for your network.
 
-const char* ssid = "test123";             //WiFI Name
-const char* password = "123123123";       //WiFi Password
-const char* mqttServer = "20.20.0.245";
+const char* ssid = "SKK - STUDENT";             //WiFI Name
+const char* password = "sistemkomputerkontrol";       //WiFi Password
+const char* mqttServer = "10.10.0.167";
 const char* mqttUserName = "";            // MQTT username
 const char* mqttPwd = "";                 // MQTT password
 const char* clientID = "ESP-32 sensor";   // client id
@@ -165,7 +165,7 @@ unsigned long now = millis();
     //value berisi data yang di inisiasi
     DynamicJsonDocument doc(1024);
     temp1 = t1;
-    humadity1 = h1*1.81;
+    humadity1 = h1;
     delay(100);
     temp2 = t2;
     humadity2 = h2;
@@ -236,6 +236,6 @@ void loop() {
   client.loop();
   
 pubsen1();
-pubwaterlevel();
+//pubwaterlevel();
  
 }

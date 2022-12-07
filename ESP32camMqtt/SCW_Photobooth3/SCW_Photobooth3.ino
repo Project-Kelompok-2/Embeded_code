@@ -19,20 +19,20 @@
 //#define CAMERA_MODEL_M5STACK_PSRAM
 //#define CAMERA_MODEL_M5STACK_WIDE
 #define CAMERA_MODEL_AI_THINKER
-#define ESP32CAM_PUBLISH_TOPIC   "ESP32_CAM 2"
+#define ESP32CAM_PUBLISH_TOPIC   "ESP32_CAM 3"
 #include "camera_pins.h"
 
 // Flash
 #define LED_BUILTIN 4
 
 //WIFI config
-const char* ssid = "test123";
-const char* password = "123123123";
+const char* ssid = "SKK - STUDENT";
+const char* password = "sistemkomputerkontrol";
 
 //MQTT config
 bool useMQTT = true;
-const char* mqttServer = "20.20.0.245";
-const char* HostName = "Photobooth_Scaleway";
+const char* mqttServer = "10.10.0.167";
+const char* HostName = "ESP32_CAM 3";
 const char* mqttUser = "";
 const char* mqttPassword = "";
 const char* topic_PHOTO = "SMILE";

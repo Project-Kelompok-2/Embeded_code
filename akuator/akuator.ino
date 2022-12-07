@@ -30,15 +30,15 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 //WiFi Status LED
-#define wifiLed    D4   //D0
+#define wifiLed    D4   //D4
 
 // Update these with values suitable for your network.
 
-const char* ssid = "JTI-3.02"; //WiFI Name
-const char* password = ""; //WiFi Password
+const char* ssid = "SKK - STUDENT"; //WiFI Name
+const char* password = "sistemkomputerkontrol"; //WiFi Password
 const char* mqttServer = "10.10.0.167";
-const char* mqttUserName = "adminmopgreen"; // MQTT username
-const char* mqttPwd = "skk1"; // MQTT password
+const char* mqttUserName = ""; // MQTT username
+const char* mqttPwd = ""; // MQTT password
 const char* clientID = "ESP-32 akuator 1"; // client id
 
 
@@ -124,6 +124,7 @@ void reconnect() {
  while (!client.connected()) {
  if (client.connect(clientID, mqttUserName, mqttPwd)) {
       // ... and resubscribe
+      Serial.println("MQTT connected");
       client.subscribe(sub_Fan1);
       client.subscribe(sub_Fan2);
       client.subscribe(sub_Fan3);
@@ -172,14 +173,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '0') {
+    if ((char)payload[0] == '1') {
       digitalWrite(RelayPinFan1, LOW);   // Turn the LED on (Note that LOW is the voltage level
 
       //
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 1 OFF");
+      display.println("FAN 1 ON");
       display.display();
     } else {
       digitalWrite(RelayPinFan1, HIGH);  // Turn the LED off by making the voltage HIGH
@@ -187,7 +188,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 1 ON");
+      display.println("FAN 1 OFF");
       display.display();
     }    
   }
@@ -199,13 +200,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '0') {
+    if ((char)payload[0] == '1') {
       digitalWrite(RelayPinFan2, LOW);   // Turn the LED on (Note that LOW is the voltage level
       
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 2 OFF");
+      display.println("FAN 2 ON");
       display.display();
     } else {
       digitalWrite(RelayPinFan2, HIGH);  // Turn the LED off by making the voltage HIGH
@@ -213,7 +214,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 2 ON");
+      display.println("FAN 2 OFF");
       display.display();
     }
   }
@@ -224,13 +225,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '0') {
+    if ((char)payload[0] == '1') {
       digitalWrite(RelayPinFan3, LOW);   // Turn the LED on (Note that LOW is the voltage level
 
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 3 OFF");
+      display.println("FAN 3 ON");
       display.display();
     } else {
       digitalWrite(RelayPinFan3, HIGH);  // Turn the LED off by making the voltage HIGH
@@ -238,7 +239,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 3 ON");
+      display.println("FAN 3 OFF");
       display.display();
     }
   }
@@ -249,13 +250,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '0') {
+    if ((char)payload[0] == '1') {
       digitalWrite(RelayPinFan4, LOW);   // Turn the LED on (Note that LOW is the voltage level
 
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 4 OFF");
+      display.println("FAN 4 ON");
       display.display();
     } else {
       digitalWrite(RelayPinFan4, HIGH);  // Turn the LED off by making the voltage HIGH
@@ -263,7 +264,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       display.clearDisplay();
       display.setCursor(8,8);
       display.setTextSize(2);
-      display.println("FAN 4 ON");
+      display.println("FAN 4 OFF");
       display.display();
     }    
   }
