@@ -30,16 +30,16 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 //WiFi Status LED
-#define wifiLed    D0   //D0
+#define wifiLed    D4   //D0
 
 // Update these with values suitable for your network.
 
-const char* ssid = "test123"; //WiFI Name
-const char* password = "123123123"; //WiFi Password
-const char* mqttServer = "20.20.0.245";
-const char* mqttUserName = ""; // MQTT username
-const char* mqttPwd = ""; // MQTT password
-const char* clientID = "ESP-32 akuator"; // client id
+const char* ssid = "JTI-3.02"; //WiFI Name
+const char* password = ""; //WiFi Password
+const char* mqttServer = "10.10.0.167";
+const char* mqttUserName = "adminmopgreen"; // MQTT username
+const char* mqttPwd = "skk1"; // MQTT password
+const char* clientID = "ESP-32 akuator 1"; // client id
 
 
 //DHT dht(DHTPin1, DHTTYPE);
@@ -56,7 +56,8 @@ const char* clientID = "ESP-32 akuator"; // client id
 #define sub_PompaN2 "PompaN2"
 //#define pub_dht11 "tr2/yellow"
 
-
+//////DISPLAY COLOR//////
+////////////////////////
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -85,11 +86,15 @@ void setup_wifi() {
  display.setTextColor(WHITE);
  display.setCursor(0,0);
  display.println("Connecting To SSID");
+ display.setCursor(0,8);
+ display.println(ssid);
+ display.setCursor(0,16);
+ display.println(password);
  display.display();
-
+ 
  for (int i = 0; i < 10; i++)
   {
-    display.setCursor(i*5,8);
+    display.setCursor(i*5,24);
     display.println(".");
     Serial.print(".");
     display.display();
@@ -118,9 +123,6 @@ void reconnect() {
    display.clearDisplay();
  while (!client.connected()) {
  if (client.connect(clientID, mqttUserName, mqttPwd)) {
-      Serial.println("MQTT connected");
-      display.clearDisplay();
-      display.println("Success Connect to MQTT");
       // ... and resubscribe
       client.subscribe(sub_Fan1);
       client.subscribe(sub_Fan2);
@@ -170,10 +172,23 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '1') {
+    if ((char)payload[0] == '0') {
       digitalWrite(RelayPinFan1, LOW);   // Turn the LED on (Note that LOW is the voltage level
+
+      //
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 OFF");
+      display.display();
     } else {
       digitalWrite(RelayPinFan1, HIGH);  // Turn the LED off by making the voltage HIGH
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 ON");
+      display.display();
     }    
   }
 
@@ -184,10 +199,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '1') {
+    if ((char)payload[0] == '0') {
       digitalWrite(RelayPinFan2, LOW);   // Turn the LED on (Note that LOW is the voltage level
+      
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 2 OFF");
+      display.display();
     } else {
       digitalWrite(RelayPinFan2, HIGH);  // Turn the LED off by making the voltage HIGH
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 2 ON");
+      display.display();
     }
   }
   else if ( strstr(topic, sub_Fan3))
@@ -197,10 +224,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '1') {
+    if ((char)payload[0] == '0') {
       digitalWrite(RelayPinFan3, LOW);   // Turn the LED on (Note that LOW is the voltage level
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 3 OFF");
+      display.display();
     } else {
       digitalWrite(RelayPinFan3, HIGH);  // Turn the LED off by making the voltage HIGH
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 3 ON");
+      display.display();
     }
   }
   else if (strstr(topic, sub_Fan4))
@@ -210,10 +249,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '1') {
+    if ((char)payload[0] == '0') {
       digitalWrite(RelayPinFan4, LOW);   // Turn the LED on (Note that LOW is the voltage level
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 4 OFF");
+      display.display();
     } else {
       digitalWrite(RelayPinFan4, HIGH);  // Turn the LED off by making the voltage HIGH
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 4 ON");
+      display.display();
     }    
   }
   
@@ -248,7 +299,7 @@ void setup() {
   
   pinMode(wifiLed, OUTPUT);
   digitalWrite(RelayPinFan1, LOW);
-
+  
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
@@ -266,6 +317,11 @@ void setup() {
   setup_wifi();
   client.setServer(mqttServer, 1883);
   client.setCallback(callback);
+
+  display.clearDisplay();
+  display.setCursor(20,0);
+  display.println("Status Akuator");
+  display.display();
 }
 
 void loop() {

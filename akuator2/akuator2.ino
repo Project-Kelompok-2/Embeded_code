@@ -19,7 +19,7 @@
 
 
 //WiFi Status LED
-#define wifiLed    D0   //D0
+#define wifiLed    D4   //D0
 
 // Update these with values suitable for your network.
 
@@ -28,7 +28,7 @@ const char* password = "123123123"; //WiFi Password
 const char* mqttServer = "20.20.0.245";
 const char* mqttUserName = ""; // MQTT username
 const char* mqttPwd = ""; // MQTT password
-const char* clientID = "ESP-32 akuator"; // client id
+const char* clientID = "ESP-32 akuator 2"; // client id
 
 
 //DHT dht(DHTPin1, DHTTYPE);
@@ -121,10 +121,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '1') {
+    if ((char)payload[0] == '0') {
       digitalWrite(RelayPinCoolPad2, LOW);   // Turn the LED on (Note that LOW is the voltage level
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 OFF");
+      display.display();
     } else {
       digitalWrite(RelayPinCoolPad2, HIGH);  // Turn the LED off by making the voltage HIGH
+
+      display.clearDisplay();
+      display.setCursor(8,8);
+      display.setTextSize(2);
+      display.println("FAN 1 ON");
+      display.display();
     }
   }
   else if ( strstr(topic, sub_PompaMisting))
