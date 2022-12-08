@@ -83,7 +83,6 @@ void setup_wifi() {
  
  display.clearDisplay();
  display.setTextSize(1);
- display.setTextColor(WHITE);
  display.setCursor(0,0);
  display.println("Connecting To SSID");
  display.setCursor(0,8);
@@ -321,7 +320,7 @@ void setup() {
 
   display.clearDisplay();
   display.setCursor(20,0);
-  display.println("Status Akuator");
+  display.println("Device Ready");
   display.display();
 }
 
