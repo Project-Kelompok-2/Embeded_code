@@ -37,9 +37,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // Update these with values suitable for your network.
 
-const char* ssid = "SKK - STUDENT"; //WiFI Name
-const char* password = "sistemkomputerkontrol"; //WiFi Password
-const char* mqttServer = "10.10.0.167";
+const char* ssid = "test123"; //WiFI Name
+const char* password = "123123123"; //WiFi Password
+const char* mqttServer = "20.20.0.245";
 const char* mqttUserName = ""; // MQTT username
 const char* mqttPwd = ""; // MQTT password
 const char* clientID = "ESP-32 akuator 2"; // client id
@@ -255,6 +255,21 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void setup() {
   Serial.begin(115200);
+
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+  Serial.println(F("SSD1306 allocation failed"));
+  for(;;); // Don't proceed, loop forever
+  display.clearDisplay();
+  }
+
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println("Starting Device");
+  display.display();
+  delay(2000);
+  display.clearDisplay();
 //  dht.begin();
 //Pin Declaration IN/OUT
 
@@ -264,12 +279,6 @@ void setup() {
   pinMode(RelayPinCoolPad2, OUTPUT);
   pinMode(RelayPinPompaMisting, OUTPUT);
   pinMode(RelayPinFreshWater, OUTPUT);
-
-    if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;); // Don't proceed, loop forever
-  display.clearDisplay();
-  }
 
 // Set Pin ON/OFF
 

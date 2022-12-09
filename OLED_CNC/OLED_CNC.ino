@@ -61,7 +61,7 @@ void setup()
     display.println(".");
     Serial.print(".");
     display.display();
-    delay(1000);
+    delay(100);
   }
 
 //  // Changing Font Size

@@ -8,8 +8,10 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
 // Declaration for SSD1306 display connected using I2C
 #define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C
@@ -34,9 +36,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // Update these with values suitable for your network.
 
-const char* ssid = "SKK - STUDENT"; //WiFI Name
-const char* password = "sistemkomputerkontrol"; //WiFi Password
-const char* mqttServer = "10.10.0.167";
+const char* ssid = "test123"; //WiFI Name
+const char* password = "123123123"; //WiFi Password
+const char* mqttServer = "20.20.0.245";
 const char* mqttUserName = ""; // MQTT username
 const char* mqttPwd = ""; // MQTT password
 const char* clientID = "ESP-32 akuator 1"; // client id
@@ -109,7 +111,7 @@ void setup_wifi() {
  display.println("WiFi connected");
  display.display();
  delay(1000);
-
+ 
  Serial.println("IP address: ");
  Serial.println(WiFi.localIP());
  display.println("IP address: ");
@@ -292,6 +294,22 @@ void setup() {
   Serial.begin(115200);
 //  dht.begin();
 
+  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+    display.clearDisplay();
+  }
+
+  // Display Text
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println("Starting Device");
+  display.display();
+  delay(2000);
+  display.clearDisplay();
+  
   pinMode(RelayPinFan1, OUTPUT);
   pinMode(RelayPinFan2, OUTPUT);
   pinMode(RelayPinFan3, OUTPUT);
@@ -300,11 +318,6 @@ void setup() {
   pinMode(wifiLed, OUTPUT);
   digitalWrite(RelayPinFan1, LOW);
   
-  if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;); // Don't proceed, loop forever
-  display.clearDisplay();
-  }
   //During Starting all Relays should TURN OFF
   digitalWrite(RelayPinFan1, HIGH);
   digitalWrite(RelayPinFan2, HIGH);
