@@ -26,8 +26,8 @@
 #define LED_BUILTIN 4
 
 //WIFI config
-const char* ssid = "SKK - STUDENT";
-const char* password = "sistemkomputerkontrol";
+const char* ssid = "RESCOM JEMBER";
+const char* password = "wifirescom222dankos555";
 
 //MQTT config
 bool useMQTT = true;

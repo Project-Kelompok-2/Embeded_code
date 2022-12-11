@@ -12,6 +12,7 @@
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 
 // Select camera model
 //#define CAMERA_MODEL_WROVER_KIT
@@ -26,12 +27,12 @@
 #define LED_BUILTIN 4
 
 //WIFI config
-const char* ssid = "SKK - STUDENT";
-const char* password = "sistemkomputerkontrol";
+const char* ssid = "RESCOM JEMBER";
+const char* password = "wifirescom222dankos555";
 
 //MQTT config
 bool useMQTT = true;
-const char* mqttServer = "10.10.0.167";
+const char* mqttServer = "192.168.100.149";
 const char* HostName = "ESP 32 CAM 1";
 const char* mqttUser = "";
 const char* mqttPassword = "";
@@ -45,6 +46,7 @@ bool flash;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+unsigned long lastMsg = 0;
 
 void startCameraServer();
 
@@ -241,10 +243,35 @@ void grabImage(){
   delay(1);
 }
 
+void sendIP(){
+unsigned long now = millis();
+  if(now - lastMsg > 2000){
+    lastMsg = now;
+    DynamicJsonDocument doc(1024);
+    // Json Fill data
+    doc["IP adress"] = WiFi.localIP().toString();
+    serializeJson(doc, Serial);
+    Serial.println("");
+    //Json fetch data
+    String message ="";
+    char buffer[256];
+    message.toCharArray(buffer, 256);
+    serializeJson(doc, buffer);
+    
+    //Json Send data
+    client.publish("ESP 32-CAM 1", buffer);
+    
+    //Serial.println(WiFi.localIP());
+    //Serial.println(WiFi.localIP().toString());
+    delay(5000);
+  }
+}
+
 void loop() {
   if (!client.connected()) {
-  //  reconnect();
+    reconnect();
   }
   client.loop();
+  sendIP();
   //if(client.connected()) grabImage();
 }
