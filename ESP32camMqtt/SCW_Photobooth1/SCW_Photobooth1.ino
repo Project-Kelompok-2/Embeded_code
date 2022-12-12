@@ -27,12 +27,12 @@
 #define LED_BUILTIN 4
 
 //WIFI config
-const char* ssid = "RESCOM JEMBER";
-const char* password = "wifirescom222dankos555";
+const char* ssid = "test123";
+const char* password = "123123123";
 
 //MQTT config
 bool useMQTT = true;
-const char* mqttServer = "192.168.100.149";
+const char* mqttServer = "20.20.0.245";
 const char* HostName = "ESP 32 CAM 1";
 const char* mqttUser = "";
 const char* mqttPassword = "";
@@ -259,7 +259,7 @@ unsigned long now = millis();
     serializeJson(doc, buffer);
     
     //Json Send data
-    client.publish("ESP 32-CAM 1", buffer);
+    client.publish("32-CAM 1", buffer);
     
     //Serial.println(WiFi.localIP());
     //Serial.println(WiFi.localIP().toString());
