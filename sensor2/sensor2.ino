@@ -1,15 +1,15 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include "DHT.h"
+//#include "DHT.h"
 #include <ArduinoJson.h>
 
 //Sensors
-#define DHTTYPE DHT11 
-#define DHTPin1  D5    //Sensor Input
-#define DHTPin2  D6    //Sensor Input
-#define DHTPin3  D7    //Sensor Input
-#define DHTPin4  D8    //Sensor Input
-#define waterlevelsensor A0 //Sensor Read
+//#define DHTTYPE DHT11 
+#define waterlevelsensor   D6    //Sensor Input
+#define waterlevelsensor2  D7    //Sensor Input
+#define waterlevelsensor3  D8    //Sensor Input
+#define bacasensor  A0    //Sensor Input
+//#define waterlevelsensor A0 //Sensor Read
 
 //LCD oled library
 #include <SPI.h>
@@ -35,39 +35,15 @@ const char* password = "123123123";       //WiFi Password
 const char* mqttServer = "20.20.0.245";
 const char* mqttUserName = "";            // MQTT username
 const char* mqttPwd = "";                 // MQTT password
-const char* clientID = "ESP-32 sensor";   // client id
+const char* clientID = "ESP-32 sensor2";   // client id
 
-//deklarasi pin dht sensor
-DHT dht(DHTPin1, DHTTYPE);
-DHT dht2(DHTPin2, DHTTYPE);
-DHT dht3(DHTPin3, DHTTYPE);
-DHT dht4(DHTPin4, DHTTYPE);
-
-
-#define sub_Fan1 "Fan1"
-#define sub_Fan2 "Fan2"
-#define sub_Fan3 "Fan3"
-#define sub_Fan4 "swF4"
-#define pub_dht11 "tr2/yellow"
-#define sub_tr2_green "tr2/green"
-#define sub_servo "servo1"
-
+#define sub_test "Ping"
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
 unsigned long lastMsg = 0;
 
-//inisiasi awal nilai variable temp1
-///dht 11 sensor1
-int temp1 = 0;
-int humadity1 = 0;
-///sensor2
-int temp2 = 0;
-int humadity2 = 0;
-
-//water level sensor
-int sensor_value = 0;
 
 void setup_wifi() {
  delay(10);
@@ -120,13 +96,7 @@ void reconnect() {
       Serial.println("MQTT connected");
       display.println("MQTT connected");
       // ... and resubscribe
-      client.subscribe(sub_Fan1);
-      client.subscribe(sub_Fan2);
-      client.subscribe(sub_Fan3);
-      client.subscribe(sub_Fan4);
-      client.subscribe(pub_dht11);
-      client.subscribe(sub_tr2_green);
-      client.subscribe(sub_servo);
+      client.subscribe(sub_test);
     } 
     else {
       Serial.print("failed, rc=");
@@ -165,6 +135,55 @@ void callback(char* topic, byte* payload, unsigned int length) {
 //  }
 }
 
+void pubwaterlevel(){
+  int sensor1;
+  int sensor2;
+  int sensor3;
+  
+  digitalWrite(waterlevelsensor, HIGH);
+  digitalWrite(waterlevelsensor2, LOW);
+  digitalWrite(waterlevelsensor3, LOW);
+  delay(1000);
+  sensor1 = analogRead(bacasensor);
+  delay(500);   
+//  Serial.print("Sensor1 : ");
+//  Serial.println(sensor1);
+  
+  digitalWrite(waterlevelsensor, LOW);
+  digitalWrite(waterlevelsensor2, HIGH);
+  digitalWrite(waterlevelsensor3, LOW);
+  delay(1000);
+  sensor2 = analogRead(bacasensor);
+  delay(500);  
+//  Serial.print("Sensor2 : ");
+//  Serial.println(sensor2);
+  
+//  digitalWrite(waterlevelsensor, LOW);
+//  digitalWrite(waterlevelsensor2, LOW);
+//  digitalWrite(waterlevelsensor3, HIGH);
+//  sensor3 = analogRead(bacasensor);
+//  delay(1000);
+//  Serial.print("Sensor3 : ");
+//  Serial.println(sensor3);
+
+  //Convert data
+  DynamicJsonDocument docsend(1024);
+
+  docsend["twater1"] = sensor1*0.5;
+  docsend["twater2"] = sensor2*0.5;
+  serializeJson(docsend, Serial);
+
+  //Json fetch data
+  String message ="";
+  char buffer[256];
+  message.toCharArray(buffer, 256);
+  serializeJson(docsend, buffer);
+
+  //Json Send data
+  client.publish("twater", buffer);
+  Serial.println("");
+  }
+
 void setup() {
   Serial.begin(115200);
 
@@ -184,16 +203,11 @@ void setup() {
   delay(2000);
   display.clearDisplay();
   
-  dht.begin();
-  dht2.begin();
-  dht3.begin();
-  dht4.begin();
-  pinMode(DHTPin1, INPUT);  
-  pinMode(DHTPin2, INPUT);
-  pinMode(DHTPin3, INPUT);  
-  pinMode(DHTPin4, INPUT);
+  pinMode(waterlevelsensor, OUTPUT);  
+  pinMode(waterlevelsensor2, OUTPUT);
+  pinMode(waterlevelsensor3, OUTPUT);
+  pinMode(bacasensor,INPUT);  
   pinMode(wifiLed, OUTPUT);
-  pinMode(waterlevelsensor, INPUT);
 
   
   //During Starting WiFi LED should TURN OFF
@@ -204,157 +218,12 @@ void setup() {
   client.setCallback(callback);
 }
 
-void pubsen1(){
-////////////READ DATA SENSOR 1
-int h1 = dht.readHumidity();
-int t1 = dht.readTemperature();
-////////////READ DATA SENSOR 2
-delay(100);
-int h2 = dht2.readHumidity();
-int t2 = dht2.readTemperature();
-////////////READ DATA SENSOR 2
-delay(100);
-int h3 = dht3.readHumidity();
-int t3 = dht3.readTemperature();
-////////////READ DATA SENSOR 2
-delay(100);
-int h4 = dht4.readHumidity();
-int t4 = dht4.readTemperature();
-
-
-//send Data sensor
-unsigned long now = millis();
-  if (now - lastMsg > 2000) {
-    lastMsg = now;
-    //value berisi data yang di inisiasi
-    DynamicJsonDocument doc(1024);
-    temp1 = t1;
-    humadity1 = h1;
-    delay(100);
-    temp2 = t2;
-    humadity2 = h2;
-//    temp3 = t3;
-//    humadity3 = h3;
-//    delay(100);
-//    temp1 = t4;
-//    humadity1 = h4;
-//    delay(100);
-    
-    //Json fill data here
-    doc["temp1"] = temp1;
-    doc["humadity1"] = humadity1;
-    doc["temp2"] = temp2;
-    doc["humadity2"] = humadity2;
-    serializeJson(doc, Serial);
-
-    //Json fetch data
-    String message ="";
-    char buffer[256];
-    message.toCharArray(buffer, 256);
-    serializeJson(doc, buffer);
-
-    //Json Send data
-    client.publish("sensor", buffer);
-  }
-Serial.println("");
-
-display.setCursor(0,0);
-Serial.print("Hum1: ");
-Serial.println(humadity1); 
-Serial.print("Temp1: ");
-Serial.println(temp1);
-Serial.print("Hum2: ");
-Serial.println(h2);  //
-Serial.print("Temp2: ");
-Serial.println(t2);
-Serial.print("Hum3: ");
-Serial.println(h3*0.90);  //
-Serial.print("Temp3: ");
-Serial.println(t3);
-Serial.print("Hum4: ");
-Serial.println(h4*2.10);  //
-Serial.print("Temp4: ");
-Serial.println(t4);
-
-///Display print sensor
-delay(1000);
-display.clearDisplay();
-display.setCursor(0,0);
-display.setTextSize(1);
-display.print("Hum1: ");
-display.print(humadity1); 
-display.setCursor(70,0);
-display.print("Temp1: ");
-display.println(temp1);
-
-delay(500);
-display.setCursor(0,8);
-display.setTextSize(1);
-display.print("Hum2: ");
-display.print(humadity2); 
-display.setCursor(70,8);
-display.print("Temp2: ");
-display.println(temp2);
-display.display();
-
-delay(500);
-display.setCursor(0,16);
-display.setTextSize(1);
-display.print("Hum3: ");
-display.print(h3); 
-display.setCursor(70,16);
-display.print("Temp3: ");
-display.println(t3);
-display.display();
-
-delay(500);
-display.setCursor(0,24);
-display.setTextSize(1);
-display.print("Hum4: ");
-display.print(h3); 
-display.setCursor(70,24);
-display.print("Temp4: ");
-display.println(t3);
-display.display();
-delay(500);
-
-display.setCursor(0,48);
-display.setTextSize(1);
-display.print("Data Sended");
-display.display();
-delay(2000);
-  }
-
-void pubwaterlevel(){
-  sensor_value = analogRead(waterlevelsensor);
-  Serial.print("Sensor Value = ");
-  Serial.println(sensor_value);
-
-  //Convert data
-  DynamicJsonDocument docsend(1024);
-
-  docsend["waterLevel"] = sensor_value;
-  serializeJson(docsend, Serial);
-
-  //Json fetch data
-  String message ="";
-  char buffer[256];
-  message.toCharArray(buffer, 256);
-  serializeJson(docsend, buffer);
-
-  //Json Send data
-  client.publish("water_level", buffer);
-  delay(5000);
-  }
-
 void loop() {
   if (!client.connected()) {
     digitalWrite(wifiLed, HIGH);
     reconnect();
   }
   client.loop();
-  
-pubsen1();
-//pubwaterlevel();
+  pubwaterlevel();
  
 }
