@@ -37,9 +37,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // Update these with values suitable for your network.
 
-const char* ssid = "RESCOM JEMBER";               //WiFI Name
-const char* password = "wifirescom222dankos555";  //WiFi Password
-const char* mqttServer = "mopgreen.my.id";
+const char* ssid = "test123";        //WiFI Name
+const char* password = "123123123";  //WiFi Password
+const char* mqttServer = "20.20.0.245";
 const char* mqttUserName = "";              // MQTT username
 const char* mqttPwd = "";                   // MQTT password
 const char* clientID = "ESP-32 akuator 1";  // client id
@@ -75,6 +75,12 @@ int setFan4 = 0;
 
 int tempValue = 0;
 int humValue = 0;
+
+int data_Satas = 0;
+int data_Sbawah = 0;
+int data_Katas = 0;
+int data_Kbawah = 0;
+int identifier = 0;
 
 void setup_wifi() {
   delay(10);
@@ -166,6 +172,9 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
+  Serial.print(" ");
+  Serial.println("Auto Control : ");
+  Serial.println(identifier);
 
   //Global Declaration for var catch
   //int OFF = 0;
@@ -265,9 +274,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       display.println("FAN 4 OFF");
       display.display();
     }
-  }
-
-  else if (strstr(topic, sub_sensor)) {
+  } else if (strstr(topic, sub_sensor)) {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
     }
@@ -309,13 +316,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
       return;
     }
     // Decode JSON/Extract values
-    int data_Satas = doc["suhu_atas"];
-    int data_Sbawah = doc["suhu_bawah"];
-    int data_Katas = doc["kelembapan_atas"];
-    int data_Kbawah = doc["kelembapan_bawah"];
+    data_Satas = doc["suhu_atas"];
+    data_Sbawah = doc["suhu_bawah"];
+    data_Katas = doc["kelembapan_atas"];
+    data_Kbawah = doc["kelembapan_bawah"];
+    identifier = doc["auto_identifier"];
 
-    //  Serial.println("");
-    //  Serial.println("");
+
     //  Serial.println("Hasil Decode");
     //  Serial.print(data_Satas);
     //  Serial.print(" ");
@@ -324,42 +331,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     //  Serial.print(data_Katas);
     //  Serial.print(" ");
     //  Serial.println(data_Kbawah);
-
-
-    if (data_Satas >= tempValue) {
-      Serial.println("");
-      Serial.println("Kipas ON");
-      Serial.print(data_Satas);
-      Serial.print(">=");
-      Serial.println(tempValue);
-      // Check Humadity
-      if (data_Katas <= humValue) {
-        Serial.println("Coolpad ON");
-        Serial.print(data_Katas);
-        Serial.print("<=");
-        Serial.println(humValue);
-      } else if (data_Kbawah >= humValue) {
-        Serial.println("Coolpad OFF");
-        Serial.print(data_Kbawah);
-        Serial.print(">=");
-        Serial.println(humValue);
-      }
-    } else if (data_Sbawah <= tempValue) {
-      Serial.println("");
-      Serial.println("Kipas OFF");
-      // Check Humadity
-      if (data_Katas <= humValue) {
-        Serial.println("Coolpad ON");
-        Serial.print(data_Katas);
-        Serial.print("<=");
-        Serial.println(humValue);
-      } else if (data_Kbawah >= humValue) {
-        Serial.println("Coolpad OFF");
-        Serial.print(data_Kbawah);
-        Serial.print(">=");
-        Serial.println(humValue);
-      }
-    }
   }
 
   else {
@@ -367,6 +338,61 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
 }
 
+void setup_autocontrol() {
+  if (identifier == 1) {
+    if (tempValue <= data_Sbawah) {
+      Serial.println("");
+      Serial.println("Kipas OFF");
+      Serial.print(tempValue);
+      Serial.print("<=");
+      Serial.println(data_Sbawah);
+      digitalWrite(RelayPinFan1, HIGH);
+      digitalWrite(RelayPinFan2, HIGH);
+      digitalWrite(RelayPinFan3, HIGH);
+      digitalWrite(RelayPinFan4, HIGH);
+      // Check Humadity
+      if (humValue <= data_Katas) {
+        Serial.println("Coolpad ON");
+        Serial.print(humValue);
+        Serial.print("<=");
+        Serial.println(data_Katas);
+        delay(500);
+      } else if (humValue >= data_Kbawah) {
+        Serial.println("Coolpad OFF");
+        Serial.print(humValue);
+        Serial.print(">=");
+        Serial.println(data_Kbawah);
+        delay(500);
+      }
+    } else if (tempValue >= data_Satas) {
+      Serial.println("");
+      Serial.println("Kipas ON");
+      Serial.print(tempValue);
+      Serial.print(">=");
+      Serial.println(data_Satas);
+      digitalWrite(RelayPinFan1, LOW);
+      digitalWrite(RelayPinFan2, LOW);
+      digitalWrite(RelayPinFan3, LOW);
+      digitalWrite(RelayPinFan4, LOW);
+      delay(1000);
+      // Check Humadity
+      if (humValue <= data_Katas) {
+        Serial.println("Coolpad ON");
+        Serial.print(humValue);
+        Serial.print("<=");
+        Serial.println(data_Katas);
+        delay(500);
+      } else if (humValue >= data_Kbawah) {
+        Serial.println("Coolpad OFF");
+        Serial.print(humValue);
+        Serial.print(">=");
+        Serial.println(data_Kbawah);
+        delay(500);
+      }
+    }
+  }
+    delay(1000);  
+}
 void setup() {
   Serial.begin(115200);
   //  dht.begin();
@@ -378,15 +404,14 @@ void setup() {
     display.clearDisplay();
   }
 
-  // Display Text
-  //  display.clearDisplay();
-  //  display.setTextSize(1);
-  //  display.setTextColor(WHITE);
-  //  display.setCursor(0,0);
-  //  display.println("Starting Device");
-  //  display.display();
-  //  delay(2000);
-  //  display.clearDisplay();
+  //Display Text
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.println("Starting Device");
+  display.display();
+  delay(2000);
+  display.clearDisplay();
 
   pinMode(RelayPinFan1, OUTPUT);
   pinMode(RelayPinFan2, OUTPUT);
@@ -421,4 +446,5 @@ void loop() {
     reconnect();
   }
   client.loop();
+  setup_autocontrol();
 }

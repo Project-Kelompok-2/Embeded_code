@@ -30,12 +30,12 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // Update these with temp1s suitable for your network.
 
-const char* ssid = "test123";        //WiFI Name
-const char* password = "123123123";  //WiFi Password
-const char* mqttServer = "20.20.0.245";
+const char* ssid = "SKK - STUDENT";        //WiFI Name
+const char* password = "sistemkomputerkontrol";  //WiFi Password
+const char* mqttServer = "mopgreen.my.id";
 const char* mqttUserName = "";           // MQTT username
 const char* mqttPwd = "";                // MQTT password
-const char* clientID = "ESP-32 sensor";  // client id
+const char* clientID = "ESP-32 sensor1";  // client id
 
 //deklarasi pin dht sensor
 DHT dht(DHTPin1, DHTTYPE);
